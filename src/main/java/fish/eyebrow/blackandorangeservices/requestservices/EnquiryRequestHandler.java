@@ -40,11 +40,14 @@ public class EnquiryRequestHandler {
 			final SimpleMailHandler simpleMailHandler = new SimpleMailHandler();
 			simpleMailHandler.generateCredentials("webapps/requestservices/WEB-INF/classes/email-login.properties");
 
+			final StringBuilder contentBuilder = new StringBuilder()
+					.append(String.format("%s, %s</br>", "Hello", fullName))
+					.append("We have received your enquiry from our website with these details:</br>")
+					.append(String.format("<b style=\"margin:10px;\">\"%s\"</b>", enquiryDetails));
+
 			final String[] recipients = {emailAddress};
 			final String subject = "Enquiry from ".concat(fullName);
-			final String content = "Hello, ".concat(fullName).concat("\n") +
-					"You have sent an enquiry with this information: ".concat(enquiryDetails).concat("\n") +
-					"We will get back to you as soon as possible";
+			final String content = contentBuilder.toString();
 
 			simpleMailHandler.sendEmail(recipients, subject, content);
 		} catch (IOException e) {
