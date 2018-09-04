@@ -39,11 +39,16 @@ public class EnquiryRequestHandler {
 
 			final SimpleMailHandler simpleMailHandler = new SimpleMailHandler();
 			simpleMailHandler.generateCredentials("webapps/requestservices/WEB-INF/classes/email-login.properties");
+			simpleMailHandler.setUsesHtmlContent(true);
+
+			final String enquiryDetailsWithHtmlBreaks = convertStringBreaksToHtmlBreaks(enquiryDetails);
 
 			final StringBuilder contentBuilder = new StringBuilder()
 					.append(String.format("%s, %s</br>", "Hello", fullName))
-					.append("We have received your enquiry from our website with these details:</br>")
-					.append(String.format("<b style=\"margin:10px;\">\"%s\"</b>", enquiryDetails));
+					.append("We have received your enquiry from our website with these details:</br></br>")
+					.append(String.format("<b>\"%s\"</b></br></br>",
+							enquiryDetailsWithHtmlBreaks))
+					.append("We will get back to you as soon as possible.");
 
 			final String[] recipients = {emailAddress};
 			final String subject = "Enquiry from ".concat(fullName);
@@ -57,5 +62,9 @@ public class EnquiryRequestHandler {
 		}
 
 		return Response.status(Response.Status.OK).build();
+	}
+
+	private String convertStringBreaksToHtmlBreaks(String stringWithBreaks) {
+		return stringWithBreaks.replaceAll("\n", "</br>");
 	}
 }
