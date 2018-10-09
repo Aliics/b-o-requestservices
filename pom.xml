@@ -13,8 +13,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>7</source>
-                    <target>7</target>
+                    <source>8</source>
+                    <target>8</target>
                 </configuration>
             </plugin>
         </plugins>
@@ -22,6 +22,9 @@
 
     <properties>
         <jersey.version>2.23.2</jersey.version>
+        <blackandorange.version>1.0-SNAPSHOT</blackandorange.version>
+        <json.version>20180813</json.version>
+        <mariadb.version>2.3.0</mariadb.version>
     </properties>
 
     <dependencies>
@@ -33,12 +36,23 @@
         <dependency>
             <groupId>fish.eyebrow.blackandorangeservices</groupId>
             <artifactId>emailservices</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${blackandorange.version}</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20180813</version>
+            <version>${json.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
+            <version>${mariadb.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>RELEASE</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
