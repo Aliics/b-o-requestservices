@@ -7,6 +7,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 @Path("menu")
@@ -29,13 +30,17 @@ public class MenuRequestHandler {
 		ResultSet resultSet = null;
 
 		final HashMap<Integer, String> menuGroupsMap = new HashMap<>();
-		final HashMap<Integer, HashMap<String, String>> menuItemsMap = new HashMap<>();
+		final ArrayList<ArrayList<String>> menuItemsList = new ArrayList<>();
 
 		try {
-			connection = DriverManager.getConnection("jdbc:mariadb://localhost:3306/menu", "root", "");
+			connection = DriverManager.getConnection(
+					DatabaseUtils.setURLFromPropertiesFile(
+					"webapps/requestservices/WEB-INF/classes/mariadb-login.properties"
+					)
+			);
 			statement = connection.createStatement();
 
-			final String queryForMenuGroups = "SELECT id, name FROM menu_groups;";
+			final String queryForMenuGroups = "SELECT id, name FROM menu_groups ORDER BY id ASC;";
 			final StringBuilder queryForMenuItems = new StringBuilder()
 					.append("SELECT group_id, name, description FROM menu_items WHERE ");
 
@@ -47,16 +52,17 @@ public class MenuRequestHandler {
 
 			for (int a = 0; a < menuGroupsMap.size(); a++)
 				queryForMenuItems.append("group_id = ").append(menuGroupsMap.keySet().toArray()[a])
-						.append(a < menuGroupsMap.size() - 1 ? " OR " : ";");
+						.append(a < menuGroupsMap.size() - 1 ? " OR " : " ORDER BY group_id ASC;");
 
 			resultSet = statement.executeQuery(queryForMenuItems.toString());
 
 			while (resultSet.next()) {
-				final HashMap<String, String> menuItem = new HashMap<>();
-				menuItem.put("name", resultSet.getString("name"));
-				menuItem.put("description", resultSet.getString("description"));
+				final ArrayList<String> menuItem = new ArrayList<>();
+				menuItem.add(resultSet.getString("group_id"));
+				menuItem.add(resultSet.getString("name"));
+				menuItem.add(resultSet.getString("description"));
 
-				menuItemsMap.put(resultSet.getInt("group_id"), menuItem);
+				menuItemsList.add(menuItem);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -73,23 +79,30 @@ public class MenuRequestHandler {
 			final String name = menuGroupsMap.get(id);
 
 			jsonResponse.append("\"").append(name).append("\"").append(": [");
-			for (int b = 0; b < menuItemsMap.size(); b++) {
-				final int groupId = (int) menuItemsMap.keySet().toArray()[b];
-				final HashMap<String, String> list = menuItemsMap.get(groupId);
+			for (int b = 0; b < menuItemsList.size(); b++) {
+				final ArrayList<String> menuItem = menuItemsList.get(b);
+				final int groupId = Integer.valueOf(menuItem.get(0));
+				final ArrayList<String> list = new ArrayList<>();
+				list.add(menuItem.get(1));
+				list.add(menuItem.get(2));
 
-				jsonResponse.append("{");
 				if (groupId == id) {
+					jsonResponse.append("{");
 					for (int c = 0; c < list.size(); c++) {
-						final String key = (String) list.keySet().toArray()[c];
+						final String key = c == 0 ? "name" : "description"; // sadly hard coded for now
 
-						jsonResponse.append("\"").append(key).append("\": \"").append(list.get(key)).append("\"")
-								.append(c < list.size() - 1 ? "," : "");
+						jsonResponse.append("\"").append(key).append("\": \"").append(list.get(c)).append("\"")
+								.append(c < list.size() - 1 ? ", " : "");
 					}
-				}
+					jsonResponse.append("}");
 
-				jsonResponse.append("}").append(a < menuGroupsMap.size() - 1 ? "," : "");
+					if (b < menuItemsList.size() - 1)
+						jsonResponse.append(groupId == Integer.valueOf(menuItemsList.get(b + 1).get(0)) ? ", " : "");
+				}
 			}
 			jsonResponse.append("]");
+
+			jsonResponse.append(a < menuGroupsMap.size() - 1 ? ", " : "");
 		}
 
 		jsonResponse.append("}");
