@@ -42,7 +42,7 @@ public class MenuRequestHandler {
 
 			final String queryForMenuGroups = "SELECT id, name FROM menu_groups ORDER BY id ASC;";
 			final StringBuilder queryForMenuItems = new StringBuilder()
-					.append("SELECT group_id, name, description FROM menu_items WHERE ");
+					.append("SELECT group_id, name, money, description FROM menu_items WHERE ");
 
 			resultSet = statement.executeQuery(queryForMenuGroups);
 
@@ -60,6 +60,7 @@ public class MenuRequestHandler {
 				final ArrayList<String> menuItem = new ArrayList<>();
 				menuItem.add(resultSet.getString("group_id"));
 				menuItem.add(resultSet.getString("name"));
+				menuItem.add(resultSet.getString("money"));
 				menuItem.add(resultSet.getString("description"));
 
 				menuItemsList.add(menuItem);
@@ -85,11 +86,13 @@ public class MenuRequestHandler {
 				final ArrayList<String> list = new ArrayList<>();
 				list.add(menuItem.get(1));
 				list.add(menuItem.get(2));
+				list.add(menuItem.get(3));
 
 				if (groupId == id) {
 					jsonResponse.append("{");
 					for (int c = 0; c < list.size(); c++) {
-						final String key = c == 0 ? "name" : "description"; // sadly hard coded for now
+						final String key = c == 0 ? "name" : (c == 1 ? "money" : "description"); // sadly hard coded for
+						// now
 
 						jsonResponse.append("\"").append(key).append("\": \"").append(list.get(c)).append("\"")
 								.append(c < list.size() - 1 ? ", " : "");
