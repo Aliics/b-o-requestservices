@@ -10,8 +10,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-@Path("menu")
-public class MenuRequestHandler {
+@Path("site-info")
+public class SiteInfoRequestHandler {
 	static {
 		try {
 			Class.forName("org.mariadb.jdbc.Driver");
@@ -21,6 +21,14 @@ public class MenuRequestHandler {
 	}
 
 	@GET
+	@Path("about")
+	@Produces("application/json")
+	public static Response generateAbout() {
+		return Response.status(Response.Status.OK).entity("{\"mainParagraph\": \"Hello, World!\"}").build();
+	}
+
+	@GET
+	@Path("menu")
 	@Produces("application/json")
 	public static Response generateMenu() {
 		final StringBuilder jsonResponse = new StringBuilder();
@@ -111,5 +119,12 @@ public class MenuRequestHandler {
 		jsonResponse.append("}");
 
 		return Response.status(Response.Status.OK).entity(jsonResponse.toString()).build();
+	}
+
+	@GET
+	@Path("contact")
+	@Produces("application/json")
+	public static Response generateContact() {
+		return Response.status(Response.Status.OK).entity("{\"address\": \"Hello, World!\"}").build();
 	}
 }
