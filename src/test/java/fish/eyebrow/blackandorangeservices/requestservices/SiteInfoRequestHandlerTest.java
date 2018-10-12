@@ -22,11 +22,6 @@ class SiteInfoRequestHandlerTest {
 	}
 
 	@Test
-	void generateMenuStatusOK() {
-		assertEquals(generateMenu().getStatus(), Response.Status.OK.getStatusCode());
-	}
-
-	@Test
 	void contactGenerationStatusOK() {
 		assertEquals(generateContact().getStatus(), Response.Status.OK.getStatusCode());
 	}

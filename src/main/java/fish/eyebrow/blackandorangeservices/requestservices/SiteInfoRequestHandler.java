@@ -1,6 +1,7 @@
 package fish.eyebrow.blackandorangeservices.requestservices;
 
 import fish.eyebrow.blackandorangeservices.requestservices.util.DatabaseUtils;
+import org.json.JSONWriter;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -24,7 +25,42 @@ public class SiteInfoRequestHandler {
 	@Path("about")
 	@Produces("application/json")
 	public static Response generateAbout() {
-		return Response.status(Response.Status.OK).entity("{\"mainParagraph\": \"Hello, World!\"}").build();
+		final StringBuilder jsonResponse = new StringBuilder();
+		final JSONWriter jsonResponseWriter = new JSONWriter(jsonResponse);
+
+		Connection connection = null;
+		Statement statement = null;
+		ResultSet resultSet = null;
+
+		try {
+			final String queryForAboutParagraphs = "SELECT content FROM about.about_paragraphs ORDER BY id ASC;";
+
+			connection = DriverManager.getConnection(
+					DatabaseUtils.setURLFromPropertiesFile(
+							"webapps/requestservices/WEB-INF/classes/mariadb-login.properties"
+					)
+			);
+			statement = connection.createStatement();
+			resultSet = statement.executeQuery(queryForAboutParagraphs);
+
+			jsonResponseWriter.object();
+			jsonResponseWriter.key("aboutParagraphs");
+			jsonResponseWriter.array();
+			while (resultSet.next()) {
+				jsonResponseWriter.value(resultSet.getString("content"));
+			}
+			jsonResponseWriter.endArray();
+			jsonResponseWriter.endObject();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+		} finally {
+			DatabaseUtils.closeQuietly(resultSet);
+			DatabaseUtils.closeQuietly(statement);
+			DatabaseUtils.closeQuietly(connection);
+		}
+
+		return Response.status(Response.Status.OK).entity(jsonResponse.toString()).build();
 	}
 
 	@GET
@@ -32,6 +68,7 @@ public class SiteInfoRequestHandler {
 	@Produces("application/json")
 	public static Response generateMenu() {
 		final StringBuilder jsonResponse = new StringBuilder();
+		final JSONWriter jsonResponseWriter = new JSONWriter(jsonResponse);
 
 		Connection connection = null;
 		Statement statement = null;
@@ -43,14 +80,14 @@ public class SiteInfoRequestHandler {
 		try {
 			connection = DriverManager.getConnection(
 					DatabaseUtils.setURLFromPropertiesFile(
-					"webapps/requestservices/WEB-INF/classes/mariadb-login.properties"
+							"webapps/requestservices/WEB-INF/classes/mariadb-login.properties"
 					)
 			);
 			statement = connection.createStatement();
 
-			final String queryForMenuGroups = "SELECT id, name FROM menu_groups ORDER BY id ASC;";
+			final String queryForMenuGroups = "SELECT id, name FROM menu.menu_groups ORDER BY id ASC;";
 			final StringBuilder queryForMenuItems = new StringBuilder()
-					.append("SELECT group_id, name, money, description FROM menu_items WHERE ");
+					.append("SELECT group_id, name, money, description FROM menu.menu_items WHERE ");
 
 			resultSet = statement.executeQuery(queryForMenuGroups);
 
@@ -82,41 +119,26 @@ public class SiteInfoRequestHandler {
 			DatabaseUtils.closeQuietly(connection);
 		}
 
-		jsonResponse.append("{");
+		jsonResponseWriter.object();
 		for (int a = 0; a < menuGroupsMap.size(); a++) {
-			final int id = (int) menuGroupsMap.keySet().toArray()[a];
-			final String name = menuGroupsMap.get(id);
+			final int groupId = (int) menuGroupsMap.keySet().toArray()[a];
+			jsonResponseWriter.key(menuGroupsMap.get(groupId));
 
-			jsonResponse.append("\"").append(name).append("\"").append(": [");
-			for (int b = 0; b < menuItemsList.size(); b++) {
-				final ArrayList<String> menuItem = menuItemsList.get(b);
-				final int groupId = Integer.valueOf(menuItem.get(0));
-				final ArrayList<String> list = new ArrayList<>();
-				list.add(menuItem.get(1));
-				list.add(menuItem.get(2));
-				list.add(menuItem.get(3));
+			jsonResponseWriter.array();
+			for (final ArrayList<String> itemList : menuItemsList) {
+				final int itemGroupId = Integer.parseInt(itemList.get(0));
+				if (groupId != itemGroupId)
+					continue;
 
-				if (groupId == id) {
-					jsonResponse.append("{");
-					for (int c = 0; c < list.size(); c++) {
-						final String key = c == 0 ? "name" : (c == 1 ? "money" : "description"); // sadly hard coded for
-						// now
-
-						jsonResponse.append("\"").append(key).append("\": \"").append(list.get(c)).append("\"")
-								.append(c < list.size() - 1 ? ", " : "");
-					}
-					jsonResponse.append("}");
-
-					if (b < menuItemsList.size() - 1)
-						jsonResponse.append(groupId == Integer.valueOf(menuItemsList.get(b + 1).get(0)) ? ", " : "");
-				}
+				jsonResponseWriter.object();
+				jsonResponseWriter.key("name").value(itemList.get(1));
+				jsonResponseWriter.key("money").value(itemList.get(2));
+				jsonResponseWriter.key("description").value(itemList.get(3));
+				jsonResponseWriter.endObject();
 			}
-			jsonResponse.append("]");
-
-			jsonResponse.append(a < menuGroupsMap.size() - 1 ? ", " : "");
+			jsonResponseWriter.endArray();
 		}
-
-		jsonResponse.append("}");
+		jsonResponseWriter.endObject();
 
 		return Response.status(Response.Status.OK).entity(jsonResponse.toString()).build();
 	}
