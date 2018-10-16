@@ -6,7 +6,7 @@
 
     <groupId>fish.eyebrow.blackandorangeservices</groupId>
     <artifactId>requestservices</artifactId>
-    <version>12102018</version>
+    <version>16102018</version>
     <build>
         <plugins>
             <plugin>

@@ -147,6 +147,45 @@ public class SiteInfoRequestHandler {
 	@Path("contact")
 	@Produces("application/json")
 	public static Response generateContact() {
-		return Response.status(Response.Status.OK).entity("{\"address\": \"Hello, World!\"}").build();
+		final StringBuilder jsonResponse = new StringBuilder();
+		final JSONWriter jsonResponseWriter = new JSONWriter(jsonResponse);
+
+		Connection connection = null;
+		Statement statement = null;
+		ResultSet resultSet = null;
+
+		try {
+			final String queryContactInformation = "SELECT * FROM contact.contact_info ORDER BY id ASC LIMIT 1;";
+
+
+
+			connection = DriverManager.getConnection(
+					DatabaseUtils.setURLFromPropertiesFile(
+							"webapps/requestservices/WEB-INF/classes/mariadb-login.properties"
+					)
+			);
+
+			statement = connection.createStatement();
+			resultSet = statement.executeQuery(queryContactInformation);
+
+			jsonResponseWriter.object();
+			while (resultSet.next()) {
+				jsonResponseWriter.key("address").value(resultSet.getString("address"));
+				jsonResponseWriter.key("phoneNumber").value(resultSet.getString("phone_number"));
+				jsonResponseWriter.key("emailAddress").value(resultSet.getString("email_address"));
+				jsonResponseWriter.key("prefContactHours")
+						.value(resultSet.getString("pref_contact_hours"));
+			}
+
+			jsonResponseWriter.endObject();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			DatabaseUtils.closeQuietly(resultSet);
+			DatabaseUtils.closeQuietly(statement);
+			DatabaseUtils.closeQuietly(connection);
+		}
+
+		return Response.status(Response.Status.OK).entity(jsonResponse.toString()).build();
 	}
 }
