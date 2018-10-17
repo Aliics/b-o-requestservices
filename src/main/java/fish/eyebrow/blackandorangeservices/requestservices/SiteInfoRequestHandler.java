@@ -157,8 +157,6 @@ public class SiteInfoRequestHandler {
 		try {
 			final String queryContactInformation = "SELECT * FROM contact.contact_info ORDER BY id ASC LIMIT 1;";
 
-
-
 			connection = DriverManager.getConnection(
 					DatabaseUtils.setURLFromPropertiesFile(
 							"webapps/requestservices/WEB-INF/classes/mariadb-login.properties"
