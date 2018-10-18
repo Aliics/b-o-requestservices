@@ -60,7 +60,9 @@ public class SiteInfoRequestHandler {
 			DatabaseUtils.closeQuietly(connection);
 		}
 
-		return Response.status(Response.Status.OK).entity(jsonResponse.toString()).build();
+		return Response.status(Response.Status.OK).entity(jsonResponse.toString())
+				.header("Access-Control-Allow-Origin", "*")
+				.build();
 	}
 
 	@GET
@@ -140,7 +142,9 @@ public class SiteInfoRequestHandler {
 		}
 		jsonResponseWriter.endObject();
 
-		return Response.status(Response.Status.OK).entity(jsonResponse.toString()).build();
+		return Response.status(Response.Status.OK).entity(jsonResponse.toString())
+				.header("Access-Control-Allow-Origin", "*")
+				.build();
 	}
 
 	@GET
@@ -184,6 +188,8 @@ public class SiteInfoRequestHandler {
 			DatabaseUtils.closeQuietly(connection);
 		}
 
-		return Response.status(Response.Status.OK).entity(jsonResponse.toString()).build();
+		return Response.status(Response.Status.OK).entity(jsonResponse.toString())
+				.header("Access-Control-Allow-Origin", "*")
+				.build();
 	}
 }

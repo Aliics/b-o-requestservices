@@ -61,7 +61,9 @@ public class EnquiryRequestHandler {
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
 		}
 
-		return Response.status(Response.Status.OK).build();
+		return Response.status(Response.Status.OK)
+				.header("Access-Control-Allow-Origin", "*")
+				.build();
 	}
 
 	private String convertStringBreaksToHtmlBreaks(String stringWithBreaks) {
