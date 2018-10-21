@@ -61,7 +61,6 @@ public class SiteInfoRequestHandler {
 		}
 
 		return Response.status(Response.Status.OK)
-				.header("Access-Control-Allow-Origin", "*")
 				.entity(jsonResponse.toString())
 				.build();
 	}
@@ -144,7 +143,6 @@ public class SiteInfoRequestHandler {
 		jsonResponseWriter.endObject();
 
 		return Response.status(Response.Status.OK)
-				.header("Access-Control-Allow-Origin", "*")
 				.entity(jsonResponse.toString())
 				.build();
 	}
@@ -191,7 +189,6 @@ public class SiteInfoRequestHandler {
 		}
 
 		return Response.status(Response.Status.OK)
-				.header("Access-Control-Allow-Origin", "*")
 				.entity(jsonResponse.toString())
 				.build();
 	}

@@ -63,7 +63,6 @@ public class EnquiryRequestHandler {
 		}
 
 		return Response.status(Response.Status.OK)
-				.header("Access-Control-Allow-Origin", "*")
 				.build();
 	}
 
