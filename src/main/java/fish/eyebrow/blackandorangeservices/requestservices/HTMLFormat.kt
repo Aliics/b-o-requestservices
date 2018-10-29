@@ -27,4 +27,8 @@ object HTMLFormat {
 
         return emailStringBuilder.toString()
     }
+
+    fun convertStringBreaksToHTMLBreaks(string: String): String {
+        return string.replace("\n", "<br/>")
+    }
 }

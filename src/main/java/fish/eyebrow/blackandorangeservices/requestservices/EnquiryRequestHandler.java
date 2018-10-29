@@ -47,14 +47,14 @@ public class EnquiryRequestHandler {
 			simpleMailHandler.generateCredentials("webapps/requestservices/WEB-INF/classes/email-login.properties");
 			simpleMailHandler.setUsesHtmlContent(true);
 
-			final String commentsWithHtmlBreaks = convertStringBreaksToHtmlBreaks(comments);
+			final String commentsWithHtmlBreaks = HTMLFormat.INSTANCE.convertStringBreaksToHTMLBreaks(comments);
 
 			final String contentBuilder = HTMLFormat.INSTANCE.formatEnquiryEmail(
 					fullName,
 					numberOfGuests,
 					location,
 					typeOfEvent,
-					comments,
+					commentsWithHtmlBreaks,
 					budget,
 					dateOfEvent
 			);
@@ -71,9 +71,5 @@ public class EnquiryRequestHandler {
 		}
 
 		return Response.status(Response.Status.OK).build();
-	}
-
-	private String convertStringBreaksToHtmlBreaks(String stringWithBreaks) {
-		return stringWithBreaks.replaceAll("\n", "</br>");
 	}
 }
