@@ -172,7 +172,7 @@ public class SiteInfoRequestHandler {
 
 			jsonResponseWriter.object();
 			while (resultSet.next()) {
-				jsonResponseWriter.key("address").value(resultSet.getString("address"));
+//				jsonResponseWriter.key("address").value(resultSet.getString("address"));
 				jsonResponseWriter.key("phoneNumber").value(resultSet.getString("phone_number"));
 				jsonResponseWriter.key("emailAddress").value(resultSet.getString("email_address"));
 				jsonResponseWriter.key("prefContactHours")

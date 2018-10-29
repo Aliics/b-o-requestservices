@@ -34,26 +34,34 @@ public class EnquiryRequestHandler {
 
 			final JSONObject enquiryJSON = new JSONObject(enquiryDataBuilder.toString());
 
-			final String emailAddress = enquiryJSON.getString("emailAddress");
 			final String fullName = enquiryJSON.getString("fullName");
-			final String enquiryDetails = enquiryJSON.getString("enquiryDetails");
+			final String emailAddress = enquiryJSON.getString("emailAddress");
+			final String numberOfGuests = enquiryJSON.getString("numberOfGuests");
+			final String location = enquiryJSON.getString("location");
+			final String typeOfEvent = enquiryJSON.getString("typeOfEvent");
+			final String comments = enquiryJSON.getString("comments");
+			final String budget = enquiryJSON.getString("budget");
+			final String dateOfEvent = enquiryJSON.getString("dateOfEvent");
 
 			final SimpleMailHandler simpleMailHandler = new SimpleMailHandler();
 			simpleMailHandler.generateCredentials("webapps/requestservices/WEB-INF/classes/email-login.properties");
 			simpleMailHandler.setUsesHtmlContent(true);
 
-			final String enquiryDetailsWithHtmlBreaks = convertStringBreaksToHtmlBreaks(enquiryDetails);
+			final String commentsWithHtmlBreaks = convertStringBreaksToHtmlBreaks(comments);
 
-			final StringBuilder contentBuilder = new StringBuilder()
-					.append(String.format("%s, %s</br>", "Hello", fullName))
-					.append("We have received your enquiry from our website with these details:</br></br>")
-					.append(String.format("<b>\"%s\"</b></br></br>",
-							enquiryDetailsWithHtmlBreaks))
-					.append("We will get back to you as soon as possible.");
+			final String contentBuilder = HTMLFormat.INSTANCE.formatEnquiryEmail(
+					fullName,
+					numberOfGuests,
+					location,
+					typeOfEvent,
+					comments,
+					budget,
+					dateOfEvent
+			);
 
 			final String[] recipients = {emailAddress};
 			final String subject = "Enquiry from ".concat(fullName);
-			final String content = contentBuilder.toString();
+			final String content = contentBuilder;
 
 			simpleMailHandler.sendEmail(recipients, subject, content);
 		} catch (IOException e) {
@@ -62,8 +70,7 @@ public class EnquiryRequestHandler {
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
 		}
 
-		return Response.status(Response.Status.OK)
-				.build();
+		return Response.status(Response.Status.OK).build();
 	}
 
 	private String convertStringBreaksToHtmlBreaks(String stringWithBreaks) {

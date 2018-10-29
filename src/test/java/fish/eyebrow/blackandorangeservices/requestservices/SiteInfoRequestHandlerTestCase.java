@@ -9,7 +9,7 @@ import static fish.eyebrow.blackandorangeservices.requestservices.SiteInfoReques
 import static fish.eyebrow.blackandorangeservices.requestservices.SiteInfoRequestHandler.generateMenu;
 import static org.junit.jupiter.api.Assertions.*;
 
-class SiteInfoRequestHandlerTest {
+class SiteInfoRequestHandlerTestCase {
 
 	@Test
 	void aboutGenerationStatusOK() {
